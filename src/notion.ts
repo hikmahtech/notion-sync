@@ -49,6 +49,28 @@ export async function queryByTitle(notion: Client, databaseId: string, title: st
   return res.results;
 }
 
+export async function queryByProjectName(notion: Client, databaseId: string, projectName: string) {
+  const out: any[] = [];
+  let cursor: string | undefined = undefined;
+  
+  do {
+    const res = await notion.databases.query({
+      database_id: databaseId,
+      filter: { 
+        property: 'project_name', 
+        rich_text: { equals: projectName } 
+      },
+      start_cursor: cursor,
+      page_size: 100
+    } as any);
+    
+    out.push(...(res.results || []));
+    cursor = res.has_more ? res.next_cursor ?? undefined : undefined;
+  } while (cursor);
+  
+  return out;
+}
+
 export async function getLastEdited(notion: Client, pageId: string): Promise<string> {
   const page = await notion.pages.retrieve({ page_id: pageId });
   return (page as any).last_edited_time as string;

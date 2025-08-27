@@ -32,6 +32,7 @@ npm run build
 2. Create a database in Notion with these properties:
    - **Name** (title) - automatically synced
    - **doc_uid** (rich text) - for tracking files
+   - **project_name** (rich text) - for project identification
    - **archived** (checkbox) - for soft deletes
 3. Share your database with the integration
 
@@ -39,11 +40,12 @@ npm run build
 
 Create a `.env` file:
 
-```env
+```bash
 NOTION_TOKEN=secret_your_integration_token
 NOTION_DATABASE_ID=your_database_id
 DOCS_DIR=docs
 CONCURRENCY=6
+PROJECT_NAME=my-project
 ```
 
 ### 4. Initialize and Sync
@@ -169,6 +171,7 @@ npx husky add .husky/pre-commit 'node dist/cli.js precommit-check'
 | `NOTION_DATABASE_ID` | Required | ID of your Notion database |
 | `DOCS_DIR` | `docs` | Directory containing markdown files |
 | `CONCURRENCY` | `6` | Number of parallel sync operations |
+| `PROJECT_NAME` | Git repo name or directory name | Project identifier sent to Notion |
 
 ## Limitations
 
