@@ -1,0 +1,34 @@
+name: Notion Sync
+on:
+  workflow_dispatch:
+  push:
+    paths: ["docs/**.md"]
+  schedule:
+    - cron: "*/30 * * * *"
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run build
+      - name: Pull from Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: node dist/cli.js pull
+      - name: Push to Notion
+        if: always()
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: node dist/cli.js push
+      - name: Push commits
+        run: |
+          git config user.name "notion-bot"
+          git config user.email "notion-bot@users.noreply.github.com"
+          git push origin HEAD
