@@ -14,6 +14,8 @@ A TypeScript CLI tool that provides two-way synchronization between Markdown fil
 - Parallel sync operations with configurable concurrency
 - Front-matter metadata tracking for sync state
 - GitHub Actions workflow for automated syncing
+- **Automatic chunking**: Handles large documents (>100 blocks) and code blocks (>2000 characters)
+- **Smart categorization**: Extracts categories from filenames (e.g., `api_health-monitoring.md` → "Api Health: Monitoring")
 
 ## Quick Start
 
@@ -106,6 +108,16 @@ archived: false
 Your markdown content here...
 ```
 
+### Smart Categorization
+
+File names with categories are automatically formatted in Notion:
+
+- `api_health-monitoring.md` → **"Api Health: Monitoring"**
+- `database_migration-rollback_strategy.md` → **"Database Migration: Rollback Strategy"**  
+- `user_auth-session_management.md` → **"User Auth: Session Management"**
+
+The category (text before first hyphen) is converted to proper case and separated with a colon.
+
 ## Conflict Resolution
 
 When both local and Notion versions have changed since the last sync:
@@ -177,7 +189,7 @@ npx husky add .husky/pre-commit 'node dist/cli.js precommit-check'
 
 - **Rate limits**: Notion API has rate limits; consider adding retry logic for production use
 - **Block support**: Limited to basic Markdown elements that round-trip safely
-- **File size**: Large pages are chunked in 100-block segments
+- **Large content**: Automatically handles Notion's limits by chunking large documents (>100 blocks) and splitting code blocks (>2000 characters)
 - **Deletes**: Use soft-delete by setting `archived: true` in front-matter
 
 ## Contributing

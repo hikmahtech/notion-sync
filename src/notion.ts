@@ -5,11 +5,22 @@ export function notionClient(token: string) {
 }
 
 export async function createPage(notion: Client, databaseId: string, title: string, props: Record<string, any>, children: any[]) {
+  // Create page without children first
   const res = await notion.pages.create({
     parent: { database_id: databaseId },
-    properties: { Name: { title: [{ text: { content: title } }] }, ...props },
-    children
+    properties: { Name: { title: [{ text: { content: title } }] }, ...props }
   } as any);
+  
+  // Add children in chunks of 100
+  if (children.length > 0) {
+    for (let i = 0; i < children.length; i += 100) {
+      await notion.blocks.children.append({ 
+        block_id: res.id, 
+        children: children.slice(i, i + 100) 
+      });
+    }
+  }
+  
   return res.id;
 }
 

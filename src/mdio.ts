@@ -29,5 +29,35 @@ export function hashBody(s: string): string {
 
 function guessTitle(content: string, fallback: string): string {
   const h1 = content.split('\n').find(l => l.startsWith('# '));
-  return h1 ? h1.slice(2).trim() : fallback;
+  const baseTitle = h1 ? h1.slice(2).trim() : fallback;
+  return formatTitleWithCategory(baseTitle, fallback);
+}
+
+function formatTitleWithCategory(title: string, filename: string): string {
+  // Extract category from filename (text before first hyphen)
+  const dashIndex = filename.indexOf('-');
+  if (dashIndex === -1) {
+    return title;
+  }
+  
+  const category = filename.slice(0, dashIndex);
+  const remainder = filename.slice(dashIndex + 1);
+  
+  // Convert category to proper words (e.g., "api_health" -> "Api Health")
+  const categoryFormatted = category
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+  
+  // If title is still the filename, also format the remainder part
+  if (title === filename) {
+    const remainderFormatted = remainder
+      .split(/[-_]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    return `${categoryFormatted}: ${remainderFormatted}`;
+  }
+  
+  // If title was extracted from H1, just add category prefix
+  return `${categoryFormatted}: ${title}`;
 }
